@@ -45,10 +45,11 @@ button{cursor:pointer}
 
 /* Gate */
 .gate{min-height:calc(100vh - 32px);display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:20px}
-.gate-art{background:var(--forest);border-radius:24px;position:relative;overflow:hidden;padding:36px;display:flex;flex-direction:column;justify-content:flex-end;min-height:260px}
-.gate-art .strip{position:absolute;inset:28px 28px auto;display:grid;gap:10px;opacity:.95}
+.gate-art{background:var(--forest);border-radius:24px;position:relative;overflow:hidden;padding:28px 28px 0;display:flex;flex-direction:column;gap:24px;min-height:260px}
+.gate-art .strip{display:grid;gap:10px}
 .gate-art .strip i{display:block;height:22px;border-radius:7px;margin-left:var(--o);width:var(--w);background:var(--c)}
-.gate-art p{position:relative;color:#CFE0D3;max-width:34ch;margin:0}
+.gate-art p{color:#CFE0D3;max-width:34ch;margin:0}
+.gate-art .facade{display:block;width:calc(100% + 56px);height:auto;margin:auto -28px 0}
 .gate-main{display:flex;flex-direction:column;justify-content:center;padding:24px clamp(8px,4vw,56px)}
 .gate-card{max-width:420px;width:100%}
 .eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:var(--orange-deep);margin:0 0 10px}
@@ -186,7 +187,8 @@ dialog::backdrop{background:rgba(18,51,37,.55)}
 
 @media (max-width:900px){
   .gate{grid-template-columns:minmax(0,1fr)}
-  .gate-art{min-height:200px;padding:24px}
+  .gate-art{min-height:200px;padding:20px 20px 0;gap:18px}
+  .gate-art .facade{width:calc(100% + 40px);margin:auto -20px 0}
   .gate-main{padding:8px 4px 16px}
   .app{grid-template-columns:minmax(0,1fr)}
   .menu-btn{display:inline-flex}
@@ -214,6 +216,30 @@ dialog::backdrop{background:rgba(18,51,37,.55)}
   <div class="gate-art" aria-hidden="true">
     <div class="strip" id="strip"></div>
     <p>Who is in, who is out, and who is meeting whom. One board for the whole registry.</p>
+    <svg class="facade" viewBox="0 0 600 262" focusable="false">
+      <g fill="rgba(207,224,211,.10)" stroke="#CFE0D3" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" opacity=".75">
+        <polygon points="36,90 300,18 564,90" fill="none"/>
+        <polyline points="70,84 300,31 530,84" fill="none" opacity=".45"/>
+        <rect x="40" y="90" width="520" height="24"/>
+        <g fill="none">
+          <rect x="65" y="114" width="36" height="7"/><rect x="70" y="121" width="26" height="101"/><path d="M78.5 124V219M87.5 124V219" opacity=".4"/><rect x="65" y="222" width="36" height="8"/>
+          <rect x="152" y="114" width="36" height="7"/><rect x="157" y="121" width="26" height="101"/><path d="M165.5 124V219M174.5 124V219" opacity=".4"/><rect x="152" y="222" width="36" height="8"/>
+          <rect x="239" y="114" width="36" height="7"/><rect x="244" y="121" width="26" height="101"/><path d="M252.5 124V219M261.5 124V219" opacity=".4"/><rect x="239" y="222" width="36" height="8"/>
+          <rect x="325" y="114" width="36" height="7"/><rect x="330" y="121" width="26" height="101"/><path d="M338.5 124V219M347.5 124V219" opacity=".4"/><rect x="325" y="222" width="36" height="8"/>
+          <rect x="412" y="114" width="36" height="7"/><rect x="417" y="121" width="26" height="101"/><path d="M425.5 124V219M434.5 124V219" opacity=".4"/><rect x="412" y="222" width="36" height="8"/>
+          <rect x="499" y="114" width="36" height="7"/><rect x="504" y="121" width="26" height="101"/><path d="M512.5 124V219M521.5 124V219" opacity=".4"/><rect x="499" y="222" width="36" height="8"/>
+        </g>
+        <rect x="24" y="230" width="552" height="10"/>
+        <rect x="8" y="240" width="584" height="10"/>
+        <rect x="0" y="250" width="600" height="12"/>
+      </g>
+      <g fill="none" stroke="#E58A55" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="300" cy="37" r="2.6" fill="#E58A55"/>
+        <path d="M300 40V86M286 86H314M270 52H330"/>
+        <path d="M270 52L258 74M270 52L282 74M255 74H285Q270 88 255 74Z"/>
+        <path d="M330 52L318 74M330 52L342 74M315 74H345Q330 88 315 74Z"/>
+      </g>
+    </svg>
   </div>
   <div class="gate-main">
     <div class="gate-card">
