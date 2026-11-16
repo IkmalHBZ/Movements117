@@ -1,0 +1,809 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>117 Movements</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: floating forest-green side panel + cream workspace. Calendar bars span multiple days so one entry covers a whole absence. */
+:root{
+  --forest:#1E4D3B; --forest-deep:#123325; --forest-mid:#2F6B4F; --mint:#E1ECE3;
+  --cream:#F6F0E2; --paper:#FFFCF5; --ink:#1B2822; --muted:#566159; --line:#E2DAC6;
+  --orange:#C2571A; --orange-deep:#A24610; --orange-tint:#FBE9DB;
+  --c-off:#2F6B4F; --c-time:#C2571A; --c-out:#2B6A8A; --c-meet:#7A4E8C; --c-other:#6B6A5C;
+  --font-display:'Bricolage Grotesque','Segoe UI',system-ui,sans-serif;
+  --font-body:'Figtree','Segoe UI',system-ui,sans-serif;
+  --r:14px; color-scheme:light;
+}
+*{box-sizing:border-box}
+html{background:var(--cream)}
+body{margin:0;background:var(--cream);color:var(--ink);font:400 15px/1.5 var(--font-body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px}
+h1,h2,h3{font-family:var(--font-display);margin:0;line-height:1.15;text-wrap:balance}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+[hidden]{display:none!important}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1.5px solid var(--line);background:var(--paper);
+  border-radius:11px;padding:9px 16px;font-weight:600;min-height:42px}
+.btn:hover{border-color:var(--forest-mid)}
+.btn-primary{background:var(--orange);border-color:var(--orange);color:#fff}
+.btn-primary:hover{background:var(--orange-deep);border-color:var(--orange-deep)}
+.btn-forest{background:var(--forest);border-color:var(--forest);color:#fff}
+.btn-forest:hover{background:var(--forest-deep)}
+.btn-danger{color:#9B2C1B;border-color:#E7C3BB}
+.btn-danger.armed{background:#9B2C1B;color:#fff;border-color:#9B2C1B}
+.btn-ghost{background:transparent}
+.icon{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+/* Gate */
+.gate{min-height:calc(100vh - 32px);display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:20px}
+.gate-art{background:var(--forest);border-radius:24px;position:relative;overflow:hidden;padding:36px;display:flex;flex-direction:column;justify-content:flex-end;min-height:260px}
+.gate-art .strip{position:absolute;inset:28px 28px auto;display:grid;gap:10px;opacity:.95}
+.gate-art .strip i{display:block;height:22px;border-radius:7px;margin-left:var(--o);width:var(--w);background:var(--c)}
+.gate-art p{position:relative;color:#CFE0D3;max-width:34ch;margin:0}
+.gate-main{display:flex;flex-direction:column;justify-content:center;padding:24px clamp(8px,4vw,56px)}
+.gate-card{max-width:420px;width:100%}
+.eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:var(--orange-deep);margin:0 0 10px}
+.gate h1{font-size:clamp(2.2rem,6vw,3.4rem);color:var(--forest);letter-spacing:-.02em}
+.gate .lede{color:var(--muted);margin:12px 0 28px}
+.field{display:grid;gap:6px;margin-bottom:16px}
+.field label,.field .lbl{font-weight:600;font-size:14px}
+.input{width:100%;border:1.5px solid var(--line);background:var(--paper);border-radius:11px;padding:10px 12px;min-height:44px}
+.input:focus{border-color:var(--forest-mid);outline:3px solid rgba(47,107,79,.25);outline-offset:0}
+textarea.input{min-height:84px;resize:vertical}
+.err{color:#9B2C1B;font-weight:600;min-height:1.5em;margin:8px 0 0}
+.fine{color:var(--muted);font-size:13px;margin-top:20px}
+.copy{color:var(--muted);font-size:13px}
+.gate-foot{grid-column:1/-1;text-align:center}
+
+/* App shell */
+.app{display:grid;grid-template-columns:268px minmax(0,1fr);gap:20px;min-height:calc(100vh - 32px)}
+.side{position:sticky;top:16px;height:calc(100vh - 32px);background:var(--forest);color:var(--cream);border-radius:22px;padding:22px 16px;
+  display:flex;flex-direction:column;gap:18px;overflow:auto}
+.brand{display:flex;flex-direction:column;gap:2px;padding:0 8px}
+.brand strong{font-family:var(--font-display);font-size:1.6rem;letter-spacing:-.01em;color:#fff}
+.brand span{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#B9D1BF}
+.side label{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#B9D1BF;padding:0 8px}
+.side select{width:100%;margin-top:6px;background:var(--forest-deep);border:1.5px solid #3E6A57;color:#fff;border-radius:10px;padding:9px 10px}
+.nav{display:grid;gap:6px}
+.nav button{display:flex;align-items:center;gap:10px;background:transparent;border:0;color:var(--cream);padding:11px 12px;border-radius:11px;font-weight:600;text-align:left}
+.nav button:hover{background:rgba(255,255,255,.09)}
+.nav button[aria-current="page"]{background:var(--cream);color:var(--forest)}
+.side .btn-primary{width:100%}
+.away{background:var(--forest-deep);border-radius:14px;padding:14px;font-size:14px}
+.away h3{font-size:.95rem;color:#fff;margin-bottom:8px;display:flex;justify-content:space-between;gap:8px}
+.away ul{list-style:none;margin:0;padding:0;display:grid;gap:7px;max-height:200px;overflow:auto}
+.away li{display:flex;gap:8px;align-items:baseline}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--tc);flex:none;transform:translateY(0)}
+.away small{color:#B9D1BF}
+.away .none{color:#B9D1BF}
+.side-foot{margin-top:auto;display:grid;gap:10px}
+.chip{display:flex;gap:8px;align-items:center;font-size:12.5px;color:#CFE0D3;padding:0 8px}
+.chip b{width:8px;height:8px;border-radius:50%;background:#E0A15E;flex:none}
+.chip.live b{background:#7ED39B}
+.side .btn-ghost{color:var(--cream);border-color:#3E6A57}
+.side .btn-ghost:hover{border-color:#fff}
+
+.shell{display:flex;flex-direction:column;min-width:0;gap:16px}
+.topbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.topbar h2{font-size:clamp(1.5rem,3vw,2rem);color:var(--forest);flex:1;min-width:0}
+.menu-btn{display:none}
+main{min-width:0;flex:1}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:20px;padding:18px}
+.banner{display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:space-between;background:var(--orange-tint);border:1px solid #F0CDB4;
+  border-radius:14px;padding:10px 14px;margin-bottom:14px;font-size:14px}
+.footer{padding:14px 0 4px;text-align:center}
+
+/* Calendar toolbar */
+.cal-head{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:14px}
+.cal-head h3{font-size:1.4rem;min-width:11ch}
+.seg{display:inline-flex;border:1.5px solid var(--line);border-radius:11px;overflow:hidden;background:var(--paper)}
+.seg button{border:0;background:transparent;padding:8px 14px;font-weight:600;min-height:40px}
+.seg button[aria-pressed="true"]{background:var(--forest);color:#fff}
+.nav-grp{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px}
+.tchip{display:inline-flex;align-items:center;gap:8px;border:1.5px solid var(--line);background:var(--paper);border-radius:999px;padding:6px 12px;font-weight:600;font-size:13.5px}
+.tchip i{width:10px;height:10px;border-radius:50%;background:var(--tc)}
+.tchip[aria-pressed="false"]{opacity:.55;text-decoration:line-through}
+.filters select{max-width:230px;padding:7px 10px;min-height:38px}
+
+/* Month grid */
+.cal{border:1px solid var(--line);border-radius:16px;overflow:hidden;background:var(--paper)}
+.dow{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));background:var(--mint);font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--forest)}
+.dow div{padding:8px 8px}
+.week{position:relative;border-top:1px solid var(--line);min-height:104px}
+.days{position:absolute;inset:0;display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
+.day{border:0;border-right:1px solid var(--line);background:transparent;text-align:left;padding:6px 8px;font-weight:600;color:var(--ink);align-self:stretch;border-radius:0}
+.day:last-child{border-right:0}
+.day:hover{background:rgba(30,77,59,.05)}
+.day.we{background:rgba(226,218,198,.28)}
+.day.other{color:#8A9189;font-weight:500}
+.day .n{display:inline-grid;place-items:center;min-width:26px;height:26px;border-radius:13px;font-size:13px}
+.day.today .n{background:var(--orange);color:#fff}
+.bars{position:relative;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));grid-auto-rows:24px;row-gap:3px;padding:34px 4px 8px;pointer-events:none}
+.bar{pointer-events:auto;border:0;background:var(--tc);color:#fff;border-radius:7px;padding:0 8px;font-size:12.5px;font-weight:600;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:left;line-height:24px;min-width:0}
+.bar:hover{filter:brightness(1.12)}
+.bar.cl{border-top-left-radius:0;border-bottom-left-radius:0;margin-left:-4px}
+.bar.cr{border-top-right-radius:0;border-bottom-right-radius:0;margin-right:-4px}
+
+/* Agenda / lists */
+.list{display:grid;gap:10px;margin:0;padding:0;list-style:none}
+.item{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:14px;align-items:center;background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.item .tag{width:6px;align-self:stretch;border-radius:4px;background:var(--tc)}
+.item h4{margin:0;font-size:15.5px}
+.item p{margin:2px 0 0;color:var(--muted);font-size:14px;overflow-wrap:anywhere}
+.badge{display:inline-block;background:var(--tc);color:#fff;border-radius:6px;padding:1px 8px;font-size:12px;font-weight:700;margin-right:6px}
+.empty{padding:36px 12px;text-align:center;color:var(--muted)}
+.sect{font-size:1.05rem;margin:18px 0 10px;color:var(--forest)}
+.sect:first-child{margin-top:0}
+
+/* Org tree */
+.org-head{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:6px}
+.hint{color:var(--muted);font-size:14px;margin:0 0 14px}
+.tree,.tree ul{list-style:none;margin:0;padding:0}
+.tree ul{margin-left:22px;padding-left:16px;border-left:2px solid var(--line)}
+.node{margin-top:8px}
+.nrow{display:flex;align-items:center;gap:10px;background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:8px 10px;min-width:0}
+.nrow.drop{outline:3px dashed var(--orange);outline-offset:2px}
+.nrow.unit{background:var(--mint);border-color:#C9DDCE}
+.nrow[draggable="true"]{cursor:grab}
+.caret{border:0;background:transparent;width:30px;height:30px;border-radius:8px;display:grid;place-items:center;flex:none}
+.caret:hover{background:var(--mint)}
+.caret .icon{transition:transform .15s}
+.caret[aria-expanded="true"] .icon{transform:rotate(90deg)}
+.spacer{width:30px;flex:none}
+.av{width:36px;height:36px;border-radius:50%;background:var(--forest);color:#fff;display:grid;place-items:center;font-weight:700;font-size:13px;flex:none;font-family:var(--font-display)}
+.unit .av{border-radius:10px;background:var(--forest-mid)}
+.who{min-width:0;flex:1}
+.who strong{display:block;overflow-wrap:anywhere}
+.who span{color:var(--muted);font-size:13.5px}
+.cnt{font-size:12px;font-weight:700;background:var(--forest);color:#fff;border-radius:999px;padding:2px 9px}
+.acts{display:flex;gap:2px;flex:none}
+.acts button{border:0;background:transparent;width:34px;height:34px;border-radius:9px;display:grid;place-items:center;color:var(--forest)}
+.acts button:hover{background:var(--mint)}
+
+/* Dialogs */
+dialog{border:0;border-radius:20px;padding:0;width:min(520px,calc(100vw - 24px));background:var(--paper);color:var(--ink);box-shadow:0 24px 60px rgba(18,51,37,.35)}
+dialog::backdrop{background:rgba(18,51,37,.55)}
+.dlg{padding:22px;display:grid;gap:4px}
+.dlg h3{font-size:1.4rem;color:var(--forest);margin-bottom:10px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.dlg-act{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;margin-top:8px}
+.dlg-act .btn-danger{margin-right:auto}
+.note{font-size:13px;color:var(--muted);margin:-8px 0 14px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(24px + env(safe-area-inset-bottom,0px));background:var(--forest-deep);color:#fff;border-radius:12px;padding:11px 18px;font-weight:600;z-index:100;max-width:calc(100vw - 32px);box-shadow:0 10px 30px rgba(0,0,0,.25)}
+.fab{display:none}
+.scrim{display:none}
+
+@media (max-width:900px){
+  .gate{grid-template-columns:minmax(0,1fr)}
+  .gate-art{min-height:200px;padding:24px}
+  .gate-main{padding:8px 4px 16px}
+  .app{grid-template-columns:minmax(0,1fr)}
+  .menu-btn{display:inline-flex}
+  .side{position:fixed;top:0;bottom:0;left:0;height:auto;width:min(300px,88vw);border-radius:0 22px 22px 0;z-index:60;
+    padding-top:max(22px,env(safe-area-inset-top,0px));padding-left:max(16px,env(safe-area-inset-left,0px));
+    transform:translateX(-105%);visibility:hidden;transition:transform .22s,visibility 0s .22s}
+  .side.open{transform:none;visibility:visible;transition:transform .22s}
+  .scrim.show{display:block;position:fixed;inset:0;background:rgba(18,51,37,.5);z-index:55}
+  .fab{display:inline-flex;position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(20px + env(safe-area-inset-bottom,0px));z-index:40;
+    border-radius:999px;box-shadow:0 10px 24px rgba(162,70,16,.4);padding:12px 20px}
+  .panel{padding:12px}
+  .bar{font-size:11px;padding:0 4px}
+  .day{padding:4px}
+  .item{grid-template-columns:auto minmax(0,1fr)}
+  .item .acts{grid-column:2}
+}
+@media (max-width:520px){.row2{grid-template-columns:1fr}.dow div{padding:6px 2px;text-align:center}.cal-head h3{min-width:0}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<!-- Front page: password gate -->
+<section id="gate" class="gate" aria-labelledby="gate-title">
+  <div class="gate-art" aria-hidden="true">
+    <div class="strip" id="strip"></div>
+    <p>Who is in, who is out, and who is meeting whom. One board for the whole registry.</p>
+  </div>
+  <div class="gate-main">
+    <div class="gate-card">
+      <p class="eyebrow">Registry Division</p>
+      <h1 id="gate-title">117 Movements</h1>
+      <p class="lede">Staff leave, time-off, outstation and meeting board. Enter the division password to continue.</p>
+      <form id="gateForm" autocomplete="off">
+        <div class="field">
+          <label for="pw">Division password</label>
+          <input class="input" id="pw" type="password" autocomplete="current-password" required>
+        </div>
+        <button class="btn btn-primary" id="gateBtn" type="submit">Enter board</button>
+        <p class="err" id="gateErr" role="alert"></p>
+      </form>
+      <p class="fine">Authorised staff only. Ask the division office if you do not have the password.</p>
+    </div>
+  </div>
+  <footer class="gate-foot copy">&copy; <span class="yr"></span> 117 Movements, Registry Division. All rights reserved.</footer>
+</section>
+
+<!-- App -->
+<div id="app" class="app" hidden>
+  <aside class="side" id="side" aria-label="Main menu">
+    <div class="brand"><strong>117 Movements</strong><span>Registry Division</span></div>
+    <div>
+      <label for="meSel">I am</label>
+      <select id="meSel"></select>
+    </div>
+    <button class="btn btn-primary" id="addBtn" type="button"><svg class="icon" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Add entry</button>
+    <nav class="nav" aria-label="Sections">
+      <button type="button" data-view="calendar"><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Calendar</button>
+      <button type="button" data-view="mine"><svg class="icon" viewBox="0 0 24 24"><path d="M5 6h14M5 12h14M5 18h9"/></svg>My entries</button>
+      <button type="button" data-view="org"><svg class="icon" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="5" rx="1.5"/><rect x="3" y="16" width="6" height="5" rx="1.5"/><rect x="15" y="16" width="6" height="5" rx="1.5"/><path d="M12 8v4M6 16v-4h12v4"/></svg>Organization</button>
+    </nav>
+    <section class="away" aria-labelledby="awayT">
+      <h3 id="awayT">Away today <span id="awayN"></span></h3>
+      <ul id="awayList"></ul>
+    </section>
+    <div class="side-foot">
+      <div class="chip" id="syncChip"><b></b><span id="syncTxt"></span></div>
+      <button class="btn btn-ghost" id="outBtn" type="button">Sign out</button>
+    </div>
+  </aside>
+  <div class="scrim" id="scrim"></div>
+
+  <div class="shell">
+    <header class="topbar">
+      <button class="btn menu-btn" id="menuBtn" type="button" aria-label="Open menu" aria-controls="side" aria-expanded="false"><svg class="icon" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+      <h2 id="viewTitle">Calendar</h2>
+    </header>
+
+    <main id="main">
+      <div id="sampleBanner" class="banner" hidden>
+        <span>Sample entries are showing so you can try the board. Clear them before the team starts using it.</span>
+        <button class="btn" id="clearSample" type="button">Clear sample entries</button>
+      </div>
+
+      <section id="v-calendar" class="panel" aria-label="Calendar">
+        <div class="cal-head">
+          <div class="nav-grp">
+            <button class="btn" id="prevM" type="button" aria-label="Previous month"><svg class="icon" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></button>
+            <h3 id="monthT" aria-live="polite"></h3>
+            <button class="btn" id="nextM" type="button" aria-label="Next month"><svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
+            <button class="btn" id="todayM" type="button">Today</button>
+          </div>
+          <div class="seg" role="group" aria-label="Calendar layout">
+            <button type="button" data-mode="month" aria-pressed="true">Month</button>
+            <button type="button" data-mode="agenda" aria-pressed="false">List</button>
+          </div>
+        </div>
+        <div class="filters">
+          <span id="legend" class="nav-grp"></span>
+          <label class="sr" for="staffFilter">Show one person</label>
+          <select class="input" id="staffFilter"></select>
+        </div>
+        <div id="calBody"></div>
+      </section>
+
+      <section id="v-mine" class="panel" aria-label="My entries" hidden></section>
+
+      <section id="v-org" class="panel" aria-label="Organization" hidden>
+        <div class="org-head">
+          <p class="hint" style="margin:0">Drag a card onto another to change who they report to, or use the pencil on a card. Changes save straight away.</p>
+          <div class="nav-grp">
+            <button class="btn" id="addUnit" type="button">Add group</button>
+            <button class="btn btn-forest" id="addPerson" type="button">Add person</button>
+          </div>
+        </div>
+        <ul class="tree" id="tree"></ul>
+      </section>
+    </main>
+
+    <footer class="footer copy">&copy; <span class="yr"></span> 117 Movements, Registry Division. All rights reserved.</footer>
+  </div>
+  <button class="btn btn-primary fab" id="fab" type="button"><svg class="icon" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Add entry</button>
+</div>
+
+<!-- Entry dialog -->
+<dialog id="entryDlg" aria-labelledby="entryT">
+  <form class="dlg" id="entryForm" novalidate>
+    <h3 id="entryT">Add entry</h3>
+    <div class="field"><label for="eStaff">Staff</label><select class="input" id="eStaff" required></select></div>
+    <div class="field"><label for="eType">Type</label><select class="input" id="eType" required></select></div>
+    <div class="row2">
+      <div class="field"><label for="eStart">From</label><input class="input" id="eStart" type="date" required></div>
+      <div class="field"><label for="eEnd">To (last day)</label><input class="input" id="eEnd" type="date" required></div>
+    </div>
+    <p class="note" id="eSpan">Pick the first and last day once. The entry covers every day in between.</p>
+    <div class="field"><label for="eTime">Time (optional)</label><input class="input" id="eTime" type="text" maxlength="60" placeholder="e.g. 2:00 pm to 5:00 pm"></div>
+    <div class="field"><label for="eNote">Details (optional)</label><textarea class="input" id="eNote" maxlength="300" placeholder="Place, case, meeting name, cover arrangement"></textarea></div>
+    <p class="err" id="eErr" role="alert"></p>
+    <div class="dlg-act">
+      <button class="btn btn-danger" id="eDel" type="button" hidden>Delete</button>
+      <button class="btn" id="eCancel" type="button">Cancel</button>
+      <button class="btn btn-primary" type="submit">Save entry</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Org node dialog -->
+<dialog id="nodeDlg" aria-labelledby="nodeT">
+  <form class="dlg" id="nodeForm" novalidate>
+    <h3 id="nodeT">Edit person</h3>
+    <div class="field"><label for="nName">Full name</label><input class="input" id="nName" type="text" maxlength="90" required></div>
+    <div class="field"><label for="nTitle">Position</label><input class="input" id="nTitle" type="text" maxlength="60" placeholder="e.g. Penolong Pendaftar"></div>
+    <div class="row2">
+      <div class="field"><label for="nKind">Type</label><select class="input" id="nKind"><option value="person">Person (appears in calendar)</option><option value="unit">Group (heading only)</option></select></div>
+      <div class="field"><label for="nParent">Reports to</label><select class="input" id="nParent"></select></div>
+    </div>
+    <p class="note" id="nWarn"></p>
+    <p class="err" id="nErr" role="alert"></p>
+    <div class="dlg-act">
+      <button class="btn btn-danger" id="nDel" type="button" hidden>Remove</button>
+      <button class="btn" id="nCancel" type="button">Cancel</button>
+      <button class="btn btn-primary" type="submit">Save</button>
+    </div>
+  </form>
+</dialog>
+
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+(() => {
+'use strict';
+
+/* ---------- Settings (edit these) ---------- */
+const CONFIG = {
+  // Paste the Google Apps Script web app URL here to share data between all staff.
+  // Leave empty to run in demo mode (data stays in this browser only).
+  SHEETS_URL: '',
+  // Used only when SHEETS_URL is empty. SHA-256 of the division password.
+  // The demo password is: 117movements
+  // To make your own, run in the browser console:
+  // crypto.subtle.digest('SHA-256', new TextEncoder().encode('YOUR PASSWORD')).then(b => console.log([...new Uint8Array(b)].map(x => x.toString(16).padStart(2,'0')).join('')))
+  PASSWORD_SHA256: 'e6f8be3608911695956a2c9d35d39330b6d055d5f902c426d3a5e0fd65bc8982',
+  POLL_SECONDS: 45
+};
+
+/* ---------- Helpers ---------- */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const mem = {};
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return k in mem ? mem[k] : d; } },
+  set(k, v) { mem[k] = v; try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+};
+const sess = {
+  get(k) { try { return sessionStorage.getItem(k); } catch (e) { return mem['s' + k] || null; } },
+  set(k, v) { mem['s' + k] = v; try { sessionStorage.setItem(k, v); } catch (e) {} },
+  del(k) { delete mem['s' + k]; try { sessionStorage.removeItem(k); } catch (e) {} }
+};
+const pad = n => String(n).padStart(2, '0');
+const toISO = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const fromISO = s => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+const addDays = (s, n) => { const d = fromISO(s); d.setDate(d.getDate() + n); return toISO(d); };
+const diffDays = (a, b) => { const [y1, m1, d1] = a.split('-').map(Number), [y2, m2, d2] = b.split('-').map(Number); return Math.round((Date.UTC(y2, m2 - 1, d2) - Date.UTC(y1, m1 - 1, d1)) / 864e5); };
+const todayISO = () => toISO(new Date());
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+const fmtDay = s => fromISO(s).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+const fmtRange = (a, b) => a === b ? fmtDay(a) : `${fmtDay(a)} to ${fmtDay(b)}`;
+const ic = {
+  plus: '<svg class="icon" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>',
+  edit: '<svg class="icon" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16v4zM13 7l4 4"/></svg>',
+  trash: '<svg class="icon" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg>',
+  chev: '<svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>'
+};
+
+const TYPES = [
+  { key: 'Off-day', c: 'var(--c-off)' }, { key: 'Time-Off', c: 'var(--c-time)' }, { key: 'Outstation', c: 'var(--c-out)' },
+  { key: 'Meeting', c: 'var(--c-meet)' }, { key: 'Others', c: 'var(--c-other)' }
+];
+const typeColor = k => (TYPES.find(t => t.key === k) || TYPES[4]).c;
+
+/* ---------- Default organization (editable in the app) ---------- */
+function buildDefaultOrg() {
+  const o = []; let n = 0;
+  const add = (name, title, parent, kind) => { const id = 'n' + (++n); o.push({ id, name, title, parent, kind: kind || 'person' }); return id; };
+  const dir = add('Division Director', 'Pengarah Bahagian', null);
+  const pkp = add('Shairil Farhana binti Ruslan', 'Penolong Kanan Pendaftar', dir);
+  ['Salmi Hazlinawati binti Nawawi', 'Siti Roslizawati binti Mohd Zanin', 'Nabilla binti Md Yusof', 'Ikmal Hisham bin Zakwan']
+    .forEach(x => add(x, 'Penolong Pendaftar', pkp));
+  const ptuu = add('Pembantu Tadbir Undang-Undang', 'PTUU', pkp, 'unit');
+  ['Makhdzir bin Mohammad', 'Salhaida binti Salleh', 'Aslina binti Sahidin', 'Mohd Hafizal bin Ngajikin', 'Sylvia Petrus',
+   'Norashakila binti Abdul Rauf', 'Mohamad Nor Fadzlie bin Mohd Sidek', 'Nur Atiqah binti Mohd Rozali', 'Nur Fatin binti Ahmad Jumat',
+   'Mumtaz binti Abd Salim', 'Zakiah binti Zulkifli', 'Nor Fadilah binti Mohd Ani', 'Nurul Izzati Azwani binti Abdullah Zawawi',
+   'Mariana binti Ismail', 'Zuraini binti Ngah', 'Rohaili binti Ab Malek'].forEach(x => add(x, 'PTUU', ptuu));
+  const ptpo = add('Pembantu Tadbir Perkeranian & Operasi', 'PTPO', pkp, 'unit');
+  ['Nazmi Faisal bin Mahad Hamzah', 'Hazrini Fazwa binti Mat Tamidi', 'Nur Hazwani binti Halim'].forEach(x => add(x, 'PTPO', ptpo));
+  const pka = add('Pembantu Khidmat Am', 'PKA', pkp, 'unit');
+  ['Wan Mohd Uzaini bin Mohd Shariff', 'Mohd Zaini bin Abd Wahab', 'Ihsan Sabri bin Mahmud'].forEach(x => add(x, 'PKA', pka));
+  return o;
+}
+
+/* ---------- State ---------- */
+const now = new Date();
+const state = {
+  events: [], org: [], me: store.get('m117.me', ''), key: '',
+  view: 'calendar', mode: 'month', cursor: { y: now.getFullYear(), m: now.getMonth() },
+  hidden: new Set(), staffFilter: '', collapsed: new Set(), editingId: null, nodeId: null, nodeParentDefault: null
+};
+const remoteOn = !!CONFIG.SHEETS_URL;
+const people = () => state.org.filter(n => n.kind === 'person');
+const byId = id => state.org.find(n => n.id === id);
+const kids = id => state.org.filter(n => (n.parent || null) === id);
+function isDesc(id, anc) { let n = byId(id); while (n && n.parent) { if (n.parent === anc) return true; n = byId(n.parent); } return false; }
+function shortNames() {
+  const first = {}; people().forEach(p => { const w = p.name.split(/\s+/)[0]; first[w] = (first[w] || 0) + 1; });
+  const m = {}; people().forEach(p => { const w = p.name.split(/\s+/); m[p.id] = first[w[0]] > 1 && w[1] ? `${w[0]} ${w[1]}` : w[0]; });
+  return m;
+}
+const initials = name => name.split(/\s+/).filter(w => !/^(bin|binti|binit|bt|b\.)$/i.test(w)).slice(0, 2).map(w => w[0]).join('').toUpperCase();
+
+/* ---------- Remote (Google Sheets via Apps Script) ---------- */
+async function remote(action, payload) {
+  const r = await fetch(CONFIG.SHEETS_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(Object.assign({ action, key: state.key }, payload || {})) });
+  const j = await r.json();
+  if (!j.ok) throw new Error(j.error || 'request failed');
+  return j;
+}
+function setSync(live, txt) { $('#syncChip').classList.toggle('live', live); $('#syncTxt').textContent = txt; }
+function normalizeOrg(rows) { return rows.map(r => ({ id: String(r.id), name: r.name, title: r.title || '', parent: r.parent ? String(r.parent) : null, kind: r.kind === 'unit' ? 'unit' : 'person' })); }
+
+async function loadData(first) {
+  if (remoteOn) {
+    const j = await remote('all');
+    state.events = (j.events || []).map(e => ({ id: String(e.id), staffId: String(e.staffId), type: e.type, start: e.start, end: e.end || e.start, time: e.time || '', note: e.note || '' }));
+    const org = normalizeOrg(j.org || []);
+    if (org.length) state.org = org;
+    else { state.org = buildDefaultOrg(); remote('saveOrg', { org: state.org }).catch(() => {}); }
+    setSync(true, 'Synced with Google Sheets');
+  } else {
+    state.org = store.get('m117.org', null) || buildDefaultOrg();
+    let ev = store.get('m117.events', null);
+    if (!ev) { ev = sampleEvents(); store.set('m117.events', ev); }
+    state.events = ev;
+    store.set('m117.org', state.org);
+    setSync(false, 'Demo mode: saved on this device only');
+  }
+  if (!byId(state.me) || byId(state.me).kind !== 'person') state.me = (people()[0] || {}).id || '';
+}
+function persistLocal() { if (!remoteOn) { store.set('m117.events', state.events); store.set('m117.org', state.org); } }
+let orgTimer;
+function saveOrg() {
+  persistLocal();
+  if (!remoteOn) return;
+  clearTimeout(orgTimer);
+  orgTimer = setTimeout(() => remote('saveOrg', { org: state.org }).catch(() => toast('Could not save the organization to Google Sheets.')), 500);
+}
+async function saveEvent(ev) {
+  const i = state.events.findIndex(e => e.id === ev.id);
+  if (i >= 0) state.events[i] = ev; else state.events.push(ev);
+  persistLocal(); renderAll();
+  if (remoteOn) { try { await remote('upsertEvent', { event: ev }); } catch (e) { toast('Could not save to Google Sheets. Check your connection.'); } }
+}
+async function removeEvent(id) {
+  state.events = state.events.filter(e => e.id !== id);
+  persistLocal(); renderAll();
+  if (remoteOn) { try { await remote('deleteEvent', { id }); } catch (e) { toast('Could not delete in Google Sheets. Check your connection.'); } }
+}
+
+function sampleEvents() {
+  const t = todayISO(), a = n => addDays(t, n);
+  const pick = p => (buildDefaultOrg().find(x => x.name.startsWith(p)) || {}).id;
+  return [
+    { staffId: pick('Shairil'), type: 'Meeting', start: a(1), end: a(1), note: 'Registry case management review' },
+    { staffId: pick('Salmi'), type: 'Off-day', start: a(2), end: a(6), note: 'Annual leave' },
+    { staffId: pick('Makhdzir'), type: 'Outstation', start: t, end: a(2), note: 'Court circuit visit' },
+    { staffId: pick('Nur Fatin'), type: 'Time-Off', start: a(1), end: a(1), time: '2:00 pm to 5:00 pm', note: 'Appointment' },
+    { staffId: pick('Mohd Zaini'), type: 'Others', start: a(7), end: a(8), note: 'Records room clean-up' },
+    { staffId: pick('Ihsan'), type: 'Meeting', start: a(3), end: a(3), note: 'Weekly division briefing' },
+    { staffId: pick('Hazrini'), type: 'Outstation', start: a(9), end: a(11), note: 'Training' },
+    { staffId: pick('Sylvia'), type: 'Off-day', start: a(-4), end: a(-3), note: '' }
+  ].map(e => Object.assign({ id: uid(), time: '', sample: true }, e));
+}
+
+/* ---------- Toast ---------- */
+let toastT;
+function toast(msg) { const t = $('#toast'); t.textContent = msg; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => { t.hidden = true; }, 3800); }
+
+/* ---------- Rendering ---------- */
+function visibleEvents() {
+  return state.events.filter(e => !state.hidden.has(e.type) && (!state.staffFilter || e.staffId === state.staffFilter) && byId(e.staffId));
+}
+function renderAll() { renderSide(); renderView(); }
+
+function renderSide() {
+  const groups = {};
+  people().forEach(p => { (groups[p.title || 'Staff'] = groups[p.title || 'Staff'] || []).push(p); });
+  const opts = Object.keys(groups).map(g => `<optgroup label="${esc(g)}">${groups[g].map(p => `<option value="${p.id}">${esc(p.name)}</option>`).join('')}</optgroup>`).join('');
+  $('#meSel').innerHTML = opts; $('#meSel').value = state.me;
+  const sf = $('#staffFilter'); sf.innerHTML = `<option value="">Everyone</option>` + opts; sf.value = state.staffFilter;
+  $$('.nav button').forEach(b => b.setAttribute('aria-current', b.dataset.view === state.view ? 'page' : 'false'));
+  const t = todayISO(), sn = shortNames();
+  const away = state.events.filter(e => e.start <= t && e.end >= t && byId(e.staffId) && e.type !== 'Meeting');
+  const meet = state.events.filter(e => e.start <= t && e.end >= t && byId(e.staffId) && e.type === 'Meeting');
+  const all = away.concat(meet);
+  $('#awayN').textContent = all.length ? `(${all.length})` : '';
+  $('#awayList').innerHTML = all.length ? all.map(e => `<li style="--tc:${typeColor(e.type)}"><span class="dot"></span><span>${esc(byId(e.staffId).name.split(/\s+/).slice(0, 2).join(' '))} <small>${esc(e.type)}</small></span></li>`).join('')
+    : '<li class="none">Everyone is in today.</li>';
+  $('#sampleBanner').hidden = !state.events.some(e => e.sample);
+}
+
+function renderView() {
+  const titles = { calendar: 'Calendar', mine: 'My entries', org: 'Organization' };
+  $('#viewTitle').textContent = titles[state.view];
+  ['calendar', 'mine', 'org'].forEach(v => { $('#v-' + v).hidden = v !== state.view; });
+  if (state.view === 'calendar') renderCalendar();
+  if (state.view === 'mine') renderMine();
+  if (state.view === 'org') renderOrg();
+}
+
+function renderCalendar() {
+  const { y, m } = state.cursor;
+  $('#monthT').textContent = new Date(y, m, 1).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+  $$('.seg button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.mode === state.mode)));
+  $('#legend').innerHTML = TYPES.map(t => `<button type="button" class="tchip" data-type="${t.key}" aria-pressed="${!state.hidden.has(t.key)}" style="--tc:${t.c}"><i></i>${t.key}</button>`).join('');
+  state.mode === 'month' ? renderMonth() : renderAgenda();
+}
+
+function renderMonth() {
+  const { y, m } = state.cursor, sn = shortNames(), t = todayISO();
+  const first = new Date(y, m, 1), offset = (first.getDay() + 6) % 7, dim = new Date(y, m + 1, 0).getDate();
+  const start = addDays(toISO(first), -offset), weeks = Math.ceil((offset + dim) / 7), evs = visibleEvents();
+  let html = `<div class="cal"><div class="dow">${['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(d => `<div>${d}</div>`).join('')}</div>`;
+  for (let w = 0; w < weeks; w++) {
+    const ws = addDays(start, w * 7), we = addDays(ws, 6);
+    const list = evs.filter(e => e.start <= we && e.end >= ws).sort((a, b) => a.start.localeCompare(b.start) || b.end.localeCompare(a.end) || a.staffId.localeCompare(b.staffId));
+    const laneEnd = []; let bars = '';
+    list.forEach(e => {
+      const cs = Math.max(0, diffDays(ws, e.start)), ce = Math.min(6, diffDays(ws, e.end));
+      let l = laneEnd.findIndex(x => x < cs); if (l < 0) { l = laneEnd.length; laneEnd.push(-1); } laneEnd[l] = ce;
+      const p = byId(e.staffId);
+      const cl = e.start < ws ? ' cl' : '', cr = e.end > we ? ' cr' : '';
+      bars += `<button type="button" class="bar${cl}${cr}" data-ev="${e.id}" style="--tc:${typeColor(e.type)};grid-column:${cs + 1}/${ce + 2};grid-row:${l + 1}" title="${esc(p.name)}: ${esc(e.type)}, ${esc(fmtRange(e.start, e.end))}${e.time ? ', ' + esc(e.time) : ''}${e.note ? '. ' + esc(e.note) : ''}">${esc(sn[p.id] || p.name)} · ${esc(e.type)}</button>`;
+    });
+    let days = '';
+    for (let d = 0; d < 7; d++) {
+      const iso = addDays(ws, d), dt = fromISO(iso);
+      days += `<button type="button" class="day${d > 4 ? ' we' : ''}${dt.getMonth() !== m ? ' other' : ''}${iso === t ? ' today' : ''}" data-date="${iso}" aria-label="Add entry on ${esc(fmtDay(iso))}"><span class="n">${dt.getDate()}</span></button>`;
+    }
+    html += `<div class="week"><div class="days">${days}</div><div class="bars">${bars}</div></div>`;
+  }
+  $('#calBody').innerHTML = html + '</div>';
+}
+
+function entryItem(e, withActions) {
+  const p = byId(e.staffId);
+  return `<li class="item" style="--tc:${typeColor(e.type)}"><span class="tag"></span><div><h4>${esc(p ? p.name : 'Removed staff')}</h4>
+    <p><span class="badge">${esc(e.type)}</span>${esc(fmtRange(e.start, e.end))}${e.time ? ' · ' + esc(e.time) : ''}</p>${e.note ? `<p>${esc(e.note)}</p>` : ''}</div>
+    <div class="acts"><button type="button" data-ev="${e.id}" aria-label="Edit entry">${ic.edit}</button></div></li>`;
+}
+function renderAgenda() {
+  const { y, m } = state.cursor, a = toISO(new Date(y, m, 1)), b = toISO(new Date(y, m + 1, 0));
+  const list = visibleEvents().filter(e => e.start <= b && e.end >= a).sort((x, z) => x.start.localeCompare(z.start) || x.end.localeCompare(z.end));
+  $('#calBody').innerHTML = list.length ? `<ul class="list">${list.map(e => entryItem(e)).join('')}</ul>` : '<p class="empty">No entries this month. Select Add entry to record one.</p>';
+}
+function renderMine() {
+  const t = todayISO(), mine = state.events.filter(e => e.staffId === state.me).sort((a, b) => a.start.localeCompare(b.start));
+  const up = mine.filter(e => e.end >= t), past = mine.filter(e => e.end < t).reverse();
+  const me = byId(state.me);
+  $('#v-mine').innerHTML = `<p class="hint">Entries for <strong>${esc(me ? me.name : '')}</strong>. Change who you are in the left panel.</p>
+    <h3 class="sect">Upcoming and current</h3>${up.length ? `<ul class="list">${up.map(e => entryItem(e)).join('')}</ul>` : '<p class="empty">Nothing coming up. Select Add entry to record leave, time-off, outstation or a meeting.</p>'}
+    ${past.length ? `<h3 class="sect">Past</h3><ul class="list">${past.map(e => entryItem(e)).join('')}</ul>` : ''}`;
+}
+
+function nodeHTML(n) {
+  const k = kids(n.id), open = !state.collapsed.has(n.id), isUnit = n.kind === 'unit';
+  return `<li class="node"><div class="nrow${isUnit ? ' unit' : ''}" draggable="true" data-id="${n.id}">
+    ${k.length ? `<button type="button" class="caret" data-act="toggle" data-id="${n.id}" aria-expanded="${open}" aria-label="${open ? 'Collapse' : 'Expand'} ${esc(n.name)}">${ic.chev}</button>` : '<span class="spacer"></span>'}
+    <span class="av" aria-hidden="true">${esc(isUnit ? n.title.slice(0, 3).toUpperCase() : initials(n.name))}</span>
+    <div class="who"><strong>${esc(n.name)}</strong><span>${esc(n.title)}</span></div>
+    ${k.length ? `<span class="cnt" title="Direct reports">${k.length}</span>` : ''}
+    <div class="acts">
+      <button type="button" data-act="add" data-id="${n.id}" aria-label="Add someone under ${esc(n.name)}">${ic.plus}</button>
+      <button type="button" data-act="edit" data-id="${n.id}" aria-label="Edit ${esc(n.name)}">${ic.edit}</button>
+    </div></div>${k.length && open ? `<ul>${k.map(nodeHTML).join('')}</ul>` : ''}</li>`;
+}
+function renderOrg() {
+  const roots = state.org.filter(n => !n.parent || !byId(n.parent));
+  $('#tree').innerHTML = roots.map(nodeHTML).join('') || '<li class="empty">No one yet. Select Add person.</li>';
+}
+
+/* ---------- Entry dialog ---------- */
+const entryDlg = $('#entryDlg');
+function openEntry(opts) {
+  opts = opts || {};
+  const ev = opts.id ? state.events.find(e => e.id === opts.id) : null;
+  state.editingId = ev ? ev.id : null;
+  $('#entryT').textContent = ev ? 'Edit entry' : 'Add entry';
+  const groups = {};
+  people().forEach(p => { (groups[p.title || 'Staff'] = groups[p.title || 'Staff'] || []).push(p); });
+  $('#eStaff').innerHTML = Object.keys(groups).map(g => `<optgroup label="${esc(g)}">${groups[g].map(p => `<option value="${p.id}">${esc(p.name)}</option>`).join('')}</optgroup>`).join('');
+  $('#eType').innerHTML = TYPES.map(t => `<option>${t.key}</option>`).join('');
+  $('#eStaff').value = ev ? ev.staffId : state.me;
+  $('#eType').value = ev ? ev.type : 'Off-day';
+  const d = opts.date || todayISO();
+  $('#eStart').value = ev ? ev.start : d; $('#eEnd').value = ev ? ev.end : d;
+  $('#eTime').value = ev ? ev.time || '' : ''; $('#eNote').value = ev ? ev.note || '' : '';
+  $('#eErr').textContent = ''; $('#eDel').hidden = !ev; $('#eDel').classList.remove('armed'); $('#eDel').textContent = 'Delete';
+  updateSpan(); entryDlg.showModal();
+}
+function updateSpan() {
+  const a = $('#eStart').value, b = $('#eEnd').value, el = $('#eSpan');
+  if (a && b && b >= a) { const n = diffDays(a, b) + 1; el.textContent = n === 1 ? 'One day. To cover several days, change the last day.' : `${n} calendar days, shown as one bar on the calendar.`; }
+  else el.textContent = 'Pick the first and last day once. The entry covers every day in between.';
+}
+$('#eStart').addEventListener('change', () => { if (!$('#eEnd').value || $('#eEnd').value < $('#eStart').value) $('#eEnd').value = $('#eStart').value; updateSpan(); });
+$('#eEnd').addEventListener('change', updateSpan);
+$('#eCancel').addEventListener('click', () => entryDlg.close());
+$('#entryForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const staffId = $('#eStaff').value, type = $('#eType').value, start = $('#eStart').value, end = $('#eEnd').value || start;
+  if (!staffId || !type || !start) { $('#eErr').textContent = 'Choose a person, a type and a first day.'; return; }
+  if (end < start) { $('#eErr').textContent = 'The last day cannot be before the first day.'; return; }
+  const old = state.editingId ? state.events.find(x => x.id === state.editingId) : null;
+  const ev = { id: old ? old.id : uid(), staffId, type, start, end, time: $('#eTime').value.trim(), note: $('#eNote').value.trim() };
+  if (old && old.sample && old.staffId === staffId) ev.sample = true;
+  entryDlg.close(); await saveEvent(ev); toast(old ? 'Entry updated.' : 'Entry added.');
+  const d = fromISO(start); state.cursor = { y: d.getFullYear(), m: d.getMonth() }; renderAll();
+});
+let delT;
+$('#eDel').addEventListener('click', async () => {
+  const b = $('#eDel');
+  if (!b.classList.contains('armed')) { b.classList.add('armed'); b.textContent = 'Tap again to delete'; clearTimeout(delT); delT = setTimeout(() => { b.classList.remove('armed'); b.textContent = 'Delete'; }, 4000); return; }
+  const id = state.editingId; entryDlg.close(); await removeEvent(id); toast('Entry deleted.');
+});
+
+/* ---------- Org dialog ---------- */
+const nodeDlg = $('#nodeDlg');
+function openNode(id, parentDefault, kindDefault) {
+  state.nodeId = id || null;
+  const n = id ? byId(id) : null;
+  $('#nodeT').textContent = n ? 'Edit ' + (n.kind === 'unit' ? 'group' : 'person') : (kindDefault === 'unit' ? 'Add group' : 'Add person');
+  $('#nName').value = n ? n.name : ''; $('#nTitle').value = n ? n.title : '';
+  $('#nKind').value = n ? n.kind : (kindDefault || 'person');
+  const blocked = id ? new Set([id, ...state.org.filter(x => isDesc(x.id, id)).map(x => x.id)]) : new Set();
+  $('#nParent').innerHTML = '<option value="">(Top of the organization)</option>' + state.org.filter(x => !blocked.has(x.id)).map(x => `<option value="${x.id}">${esc(x.name)}${x.title ? ' (' + esc(x.title) + ')' : ''}</option>`).join('');
+  $('#nParent').value = n ? (n.parent || '') : (parentDefault || '');
+  $('#nErr').textContent = ''; $('#nWarn').textContent = '';
+  $('#nDel').hidden = !n; $('#nDel').classList.remove('armed'); $('#nDel').textContent = 'Remove';
+  nodeDlg.showModal(); $('#nName').focus();
+}
+$('#nCancel').addEventListener('click', () => nodeDlg.close());
+$('#nodeForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const name = $('#nName').value.trim();
+  if (!name) { $('#nErr').textContent = 'Enter a name.'; return; }
+  const data = { name, title: $('#nTitle').value.trim(), kind: $('#nKind').value, parent: $('#nParent').value || null };
+  if (state.nodeId) Object.assign(byId(state.nodeId), data); else state.org.push(Object.assign({ id: 'n' + uid() }, data));
+  if (!state.me || !byId(state.me)) state.me = (people()[0] || {}).id || '';
+  nodeDlg.close(); saveOrg(); renderAll(); toast('Organization updated.');
+});
+let nDelT;
+$('#nDel').addEventListener('click', () => {
+  const b = $('#nDel'), n = byId(state.nodeId); if (!n) return;
+  const cnt = state.events.filter(x => x.staffId === n.id).length;
+  if (!b.classList.contains('armed')) {
+    b.classList.add('armed'); b.textContent = 'Tap again to remove';
+    $('#nWarn').textContent = (kids(n.id).length ? 'People under this card will move up one level. ' : '') + (cnt ? `Their ${cnt} calendar ${cnt === 1 ? 'entry' : 'entries'} will also be deleted.` : '');
+    clearTimeout(nDelT); nDelT = setTimeout(() => { b.classList.remove('armed'); b.textContent = 'Remove'; $('#nWarn').textContent = ''; }, 5000); return;
+  }
+  kids(n.id).forEach(c => { c.parent = n.parent || null; });
+  state.org = state.org.filter(x => x.id !== n.id);
+  state.events = state.events.filter(x => x.staffId !== n.id);
+  if (state.me === n.id) state.me = (people()[0] || {}).id || '';
+  nodeDlg.close(); saveOrg(); persistLocal();
+  if (remoteOn && cnt) remote('deleteStaffEvents', { staffId: n.id }).catch(() => toast('Could not remove their entries in Google Sheets.'));
+  renderAll(); toast('Removed.');
+});
+
+/* ---------- Drag and drop in the tree ---------- */
+let dragId = null;
+const tree = $('#tree');
+const canMove = (id, target) => id && target && id !== target && !isDesc(target, id) && (byId(id).parent || null) !== target;
+tree.addEventListener('dragstart', e => { const r = e.target.closest('.nrow'); if (!r) return; dragId = r.dataset.id; e.dataTransfer.setData('text/plain', dragId); e.dataTransfer.effectAllowed = 'move'; });
+tree.addEventListener('dragover', e => { const r = e.target.closest('.nrow'); if (r && canMove(dragId, r.dataset.id)) { e.preventDefault(); r.classList.add('drop'); } });
+tree.addEventListener('dragleave', e => { const r = e.target.closest('.nrow'); if (r) r.classList.remove('drop'); });
+tree.addEventListener('dragend', () => { dragId = null; $$('.drop').forEach(x => x.classList.remove('drop')); });
+tree.addEventListener('drop', e => {
+  const r = e.target.closest('.nrow'); if (!r || !canMove(dragId, r.dataset.id)) return;
+  e.preventDefault(); byId(dragId).parent = r.dataset.id; state.collapsed.delete(r.dataset.id); dragId = null; saveOrg(); renderAll(); toast('Moved.');
+});
+tree.addEventListener('click', e => {
+  const b = e.target.closest('button[data-act]'); if (!b) return;
+  const id = b.dataset.id;
+  if (b.dataset.act === 'toggle') { state.collapsed.has(id) ? state.collapsed.delete(id) : state.collapsed.add(id); renderOrg(); }
+  if (b.dataset.act === 'edit') openNode(id);
+  if (b.dataset.act === 'add') openNode(null, id, 'person');
+});
+$('#addPerson').addEventListener('click', () => openNode(null, (state.org.find(n => !n.parent) || {}).id || '', 'person'));
+$('#addUnit').addEventListener('click', () => openNode(null, (state.org.find(n => !n.parent) || {}).id || '', 'unit'));
+
+/* ---------- Calendar and navigation events ---------- */
+$('#calBody').addEventListener('click', e => {
+  const bar = e.target.closest('[data-ev]'); if (bar) return openEntry({ id: bar.dataset.ev });
+  const day = e.target.closest('.day'); if (day) openEntry({ date: day.dataset.date });
+});
+$('#v-mine').addEventListener('click', e => { const b = e.target.closest('[data-ev]'); if (b) openEntry({ id: b.dataset.ev }); });
+$('#legend').addEventListener('click', e => { const b = e.target.closest('.tchip'); if (!b) return; const k = b.dataset.type; state.hidden.has(k) ? state.hidden.delete(k) : state.hidden.add(k); renderCalendar(); });
+$('#staffFilter').addEventListener('change', e => { state.staffFilter = e.target.value; renderCalendar(); });
+$$('.seg button').forEach(b => b.addEventListener('click', () => { state.mode = b.dataset.mode; renderCalendar(); }));
+const shift = n => { const d = new Date(state.cursor.y, state.cursor.m + n, 1); state.cursor = { y: d.getFullYear(), m: d.getMonth() }; renderCalendar(); };
+$('#prevM').addEventListener('click', () => shift(-1)); $('#nextM').addEventListener('click', () => shift(1));
+$('#todayM').addEventListener('click', () => { const d = new Date(); state.cursor = { y: d.getFullYear(), m: d.getMonth() }; renderCalendar(); });
+$('#meSel').addEventListener('change', e => { state.me = e.target.value; store.set('m117.me', state.me); if (state.view === 'mine') renderMine(); });
+$('#addBtn').addEventListener('click', () => { closeMenu(); openEntry(); });
+$('#fab').addEventListener('click', () => openEntry());
+$$('.nav button').forEach(b => b.addEventListener('click', () => { state.view = b.dataset.view; closeMenu(); renderAll(); window.scrollTo(0, 0); }));
+$('#clearSample').addEventListener('click', async () => {
+  const ids = state.events.filter(e => e.sample).map(e => e.id);
+  state.events = state.events.filter(e => !e.sample); persistLocal(); renderAll(); toast('Sample entries cleared.');
+  if (remoteOn) ids.forEach(id => remote('deleteEvent', { id }).catch(() => {}));
+});
+[entryDlg, nodeDlg].forEach(d => d.addEventListener('click', e => { if (e.target === d) d.close(); }));
+
+const side = $('#side'), scrim = $('#scrim'), menuBtn = $('#menuBtn');
+function openMenu() { side.classList.add('open'); scrim.classList.add('show'); menuBtn.setAttribute('aria-expanded', 'true'); }
+function closeMenu() { side.classList.remove('open'); scrim.classList.remove('show'); menuBtn.setAttribute('aria-expanded', 'false'); }
+menuBtn.addEventListener('click', () => side.classList.contains('open') ? closeMenu() : openMenu());
+scrim.addEventListener('click', closeMenu);
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu(); });
+
+/* ---------- Gate ---------- */
+async function sha256(s) {
+  const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
+  return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join('');
+}
+let fails = 0, lockUntil = 0;
+async function enter() {
+  $('#gate').hidden = true; $('#app').hidden = false;
+  try { await loadData(true); } catch (e) { toast('Could not load data from Google Sheets.'); setSync(false, 'Offline: could not reach Google Sheets'); state.org = state.org.length ? state.org : buildDefaultOrg(); }
+  renderAll();
+  if (remoteOn) setInterval(async () => {
+    if (document.hidden || entryDlg.open || nodeDlg.open) return;
+    try { await loadData(); renderAll(); } catch (e) { setSync(false, 'Offline: retrying'); }
+  }, CONFIG.POLL_SECONDS * 1000);
+}
+$('#gateForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const err = $('#gateErr'), pw = $('#pw').value;
+  if (Date.now() < lockUntil) { err.textContent = `Too many attempts. Try again in ${Math.ceil((lockUntil - Date.now()) / 1000)} seconds.`; return; }
+  $('#gateBtn').disabled = true; err.textContent = '';
+  let ok = false;
+  try {
+    if (remoteOn) { state.key = pw; await remote('auth'); ok = true; }
+    else ok = (await sha256(pw)) === CONFIG.PASSWORD_SHA256;
+  } catch (x) { ok = false; if (remoteOn && String(x.message) !== 'auth') err.textContent = 'Could not reach the server. Check the connection and try again.'; }
+  $('#gateBtn').disabled = false;
+  if (ok) { sess.set('m117.auth', remoteOn ? pw : '1'); $('#pw').value = ''; enter(); return; }
+  fails++; if (fails >= 5) { lockUntil = Date.now() + 30000; fails = 0; }
+  if (!err.textContent) err.textContent = 'That password is not correct.';
+  $('#pw').select();
+});
+$('#outBtn').addEventListener('click', () => { sess.del('m117.auth'); location.reload(); });
+
+/* ---------- Boot ---------- */
+$$('.yr').forEach(s => { s.textContent = new Date().getFullYear(); });
+(function strip() {
+  const cs = ['#2F6B4F', '#C2571A', '#2B6A8A', '#7A4E8C', '#6B6A5C', '#E8DFC8'];
+  const rows = [[0, 38, 0], [22, 46, 1], [8, 30, 3], [44, 40, 2], [0, 24, 5], [30, 52, 0], [12, 34, 4]];
+  $('#strip').innerHTML = rows.map(r => `<i style="--o:${r[0]}%;--w:${r[1]}%;--c:${cs[r[2]]}"></i>`).join('');
+})();
+const saved = sess.get('m117.auth');
+if (saved) {
+  if (remoteOn) { state.key = saved; remote('auth').then(enter, () => { sess.del('m117.auth'); }); }
+  else enter();
+}
+})();
+</script>
+</body>
+</html>
