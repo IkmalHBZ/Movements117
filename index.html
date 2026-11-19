@@ -14,7 +14,7 @@
   --forest:#1E4D3B; --forest-deep:#123325; --forest-mid:#2F6B4F; --mint:#E1ECE3;
   --cream:#F6F0E2; --paper:#FFFCF5; --ink:#1B2822; --muted:#566159; --line:#E2DAC6;
   --orange:#C2571A; --orange-deep:#A24610; --orange-tint:#FBE9DB;
-  --c-off:#2F6B4F; --c-time:#C2571A; --c-out:#2B6A8A; --c-meet:#7A4E8C; --c-other:#6B6A5C;
+  --c-off:#2F6B4F; --c-time:#C2571A; --c-out:#2B6A8A; --c-meet:#7A4E8C; --c-other:#6B6A5C; --c-med:#A62B52;
   --font-display:'Bricolage Grotesque','Segoe UI',system-ui,sans-serif;
   --font-body:'Figtree','Segoe UI',system-ui,sans-serif;
   --r:14px; color-scheme:light;
@@ -122,14 +122,14 @@ main{min-width:0;flex:1}
 .dow div{padding:8px 8px}
 .week{position:relative;border-top:1px solid var(--line);min-height:104px}
 .days{position:absolute;inset:0;display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
-.day{border:0;border-right:1px solid var(--line);background:transparent;text-align:left;padding:6px 8px;font-weight:600;color:var(--ink);align-self:stretch;border-radius:0}
+.day{border:0;border-right:1px solid var(--line);background:transparent;text-align:left;padding:6px 8px;font-weight:600;color:var(--ink);align-self:stretch;border-radius:0;display:flex;align-items:flex-start;justify-content:flex-start}
 .day:last-child{border-right:0}
 .day:hover{background:rgba(30,77,59,.05)}
 .day.we{background:rgba(226,218,198,.28)}
 .day.other{color:#8A9189;font-weight:500}
-.day .n{display:inline-grid;place-items:center;min-width:26px;height:26px;border-radius:13px;font-size:13px}
+.day .n{display:inline-grid;place-items:center;min-width:28px;height:28px;border-radius:14px;font-size:14px;font-weight:700}
 .day.today .n{background:var(--orange);color:#fff}
-.bars{position:relative;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));grid-auto-rows:24px;row-gap:3px;padding:34px 4px 8px;pointer-events:none}
+.bars{position:relative;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));grid-auto-rows:24px;row-gap:3px;padding:40px 4px 8px;pointer-events:none}
 .bar{pointer-events:auto;border:0;background:var(--tc);color:#fff;border-radius:7px;padding:0 8px;font-size:12.5px;font-weight:600;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:left;line-height:24px;min-width:0}
 .bar:hover{filter:brightness(1.12)}
@@ -144,6 +144,7 @@ main{min-width:0;flex:1}
 .item p{margin:2px 0 0;color:var(--muted);font-size:14px;overflow-wrap:anywhere}
 .badge{display:inline-block;background:var(--tc);color:#fff;border-radius:6px;padding:1px 8px;font-size:12px;font-weight:700;margin-right:6px}
 .empty{padding:36px 12px;text-align:center;color:var(--muted)}
+.item p.ntext{color:var(--ink);white-space:pre-wrap;margin-top:8px}
 .sect{font-size:1.05rem;margin:18px 0 10px;color:var(--forest)}
 .sect:first-child{margin-top:0}
 
@@ -272,6 +273,7 @@ dialog::backdrop{background:rgba(18,51,37,.55)}
     <nav class="nav" aria-label="Sections">
       <button type="button" data-view="calendar"><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Calendar</button>
       <button type="button" data-view="mine"><svg class="icon" viewBox="0 0 24 24"><path d="M5 6h14M5 12h14M5 18h9"/></svg>My entries</button>
+      <button type="button" data-view="notes"><svg class="icon" viewBox="0 0 24 24"><path d="M5 4h14v11l-5 5H5z"/><path d="M14 20v-5h5M8 9h8M8 13h4"/></svg>Notes</button>
       <button type="button" data-view="org"><svg class="icon" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="5" rx="1.5"/><rect x="3" y="16" width="6" height="5" rx="1.5"/><rect x="15" y="16" width="6" height="5" rx="1.5"/><path d="M12 8v4M6 16v-4h12v4"/></svg>Organization</button>
     </nav>
     <section class="away" aria-labelledby="awayT">
@@ -319,6 +321,8 @@ dialog::backdrop{background:rgba(18,51,37,.55)}
       </section>
 
       <section id="v-mine" class="panel" aria-label="My entries" hidden></section>
+
+      <section id="v-notes" class="panel" aria-label="Notes" hidden></section>
 
       <section id="v-org" class="panel" aria-label="Organization" hidden>
         <div class="org-head">
@@ -379,6 +383,22 @@ dialog::backdrop{background:rgba(18,51,37,.55)}
   </form>
 </dialog>
 
+<!-- Note dialog -->
+<dialog id="noteDlg" aria-labelledby="noteT">
+  <form class="dlg" id="noteForm" novalidate>
+    <h3 id="noteT">Add note</h3>
+    <div class="field"><label for="ntAuthor">Written by</label><select class="input" id="ntAuthor" required></select></div>
+    <p class="note">Only Penolong Kanan Pendaftar and Penolong Pendaftar can write notes. Choose your own name so everyone knows who wrote it.</p>
+    <div class="field"><label for="ntText">Note or reminder</label><textarea class="input" id="ntText" maxlength="800" required placeholder="Write the note here"></textarea></div>
+    <p class="err" id="ntErr" role="alert"></p>
+    <div class="dlg-act">
+      <button class="btn btn-danger" id="ntDel" type="button" hidden>Delete</button>
+      <button class="btn" id="ntCancel" type="button">Cancel</button>
+      <button class="btn btn-primary" type="submit">Save note</button>
+    </div>
+  </form>
+</dialog>
+
 <div class="toast" id="toast" role="status" hidden></div>
 
 <script>
@@ -429,7 +449,7 @@ const ic = {
 };
 
 const TYPES = [
-  { key: 'Off-day', c: 'var(--c-off)' }, { key: 'Time-Off', c: 'var(--c-time)' }, { key: 'Outstation', c: 'var(--c-out)' },
+  { key: 'Off-day', c: 'var(--c-off)' }, { key: 'Medical Leave', c: 'var(--c-med)' }, { key: 'Time-Off', c: 'var(--c-time)' }, { key: 'Outstation', c: 'var(--c-out)' },
   { key: 'Meeting', c: 'var(--c-meet)' }, { key: 'Others', c: 'var(--c-other)' }
 ];
 const typeColor = k => (TYPES.find(t => t.key === k) || TYPES[4]).c;
@@ -457,7 +477,7 @@ function buildDefaultOrg() {
 /* ---------- State ---------- */
 const now = new Date();
 const state = {
-  events: [], org: [], me: store.get('m117.me', ''), key: '',
+  events: [], org: [], notes: [], notesOk: true, me: store.get('m117.me', ''), key: '',
   view: 'calendar', mode: 'month', cursor: { y: now.getFullYear(), m: now.getMonth() },
   hidden: new Set(), staffFilter: '', collapsed: new Set(), editingId: null, nodeId: null, nodeParentDefault: null
 };
@@ -488,6 +508,8 @@ async function loadData(first) {
   if (remoteOn) {
     const j = await remote('all');
     state.events = (j.events || []).map(e => ({ id: String(e.id), staffId: String(e.staffId), type: e.type, start: e.start, end: e.end || e.start, time: e.time || '', note: e.note || '' }));
+    state.notesOk = Array.isArray(j.notes);
+    state.notes = (j.notes || []).map(n => ({ id: String(n.id), authorId: String(n.authorId), authorName: n.authorName || '', authorTitle: n.authorTitle || '', text: n.text || '', createdAt: n.createdAt || '', updatedAt: n.updatedAt || '' }));
     const org = normalizeOrg(j.org || []);
     if (org.length) state.org = org;
     else { state.org = buildDefaultOrg(); remote('saveOrg', { org: state.org }).catch(() => {}); }
@@ -497,12 +519,13 @@ async function loadData(first) {
     let ev = store.get('m117.events', null);
     if (!ev) { ev = sampleEvents(); store.set('m117.events', ev); }
     state.events = ev;
+    state.notes = store.get('m117.notes', []); state.notesOk = true;
     store.set('m117.org', state.org);
     setSync(false, 'Demo mode: saved on this device only');
   }
   if (!byId(state.me) || byId(state.me).kind !== 'person') state.me = (people()[0] || {}).id || '';
 }
-function persistLocal() { if (!remoteOn) { store.set('m117.events', state.events); store.set('m117.org', state.org); } }
+function persistLocal() { if (!remoteOn) { store.set('m117.events', state.events); store.set('m117.org', state.org); store.set('m117.notes', state.notes); } }
 let orgTimer;
 function saveOrg() {
   persistLocal();
@@ -565,11 +588,12 @@ function renderSide() {
 }
 
 function renderView() {
-  const titles = { calendar: 'Calendar', mine: 'My entries', org: 'Organization' };
+  const titles = { calendar: 'Calendar', mine: 'My entries', notes: 'Notes', org: 'Organization' };
   $('#viewTitle').textContent = titles[state.view];
-  ['calendar', 'mine', 'org'].forEach(v => { $('#v-' + v).hidden = v !== state.view; });
+  ['calendar', 'mine', 'notes', 'org'].forEach(v => { $('#v-' + v).hidden = v !== state.view; });
   if (state.view === 'calendar') renderCalendar();
   if (state.view === 'mine') renderMine();
+  if (state.view === 'notes') renderNotes();
   if (state.view === 'org') renderOrg();
 }
 
@@ -732,6 +756,88 @@ $('#nDel').addEventListener('click', () => {
   renderAll(); toast('Removed.');
 });
 
+/* ---------- Notes ---------- */
+const NOTE_TITLES = ['penolong kanan pendaftar', 'penolong pendaftar'];
+const noteWriters = () => people().filter(p => NOTE_TITLES.includes((p.title || '').trim().toLowerCase()));
+const noteDlg = $('#noteDlg');
+let noteEditId = null;
+const fmtStamp = s => { const d = new Date(s); return isNaN(d) ? '' : d.toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit' }); };
+
+function renderNotes() {
+  const list = state.notes.slice().sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+  const items = list.map(n => {
+    const a = byId(n.authorId), name = a ? a.name : n.authorName, title = a ? a.title : n.authorTitle;
+    const edited = n.updatedAt && n.updatedAt !== n.createdAt ? ' · edited ' + fmtStamp(n.updatedAt) : '';
+    return `<li class="item" style="--tc:var(--forest-mid)"><span class="tag"></span><div><h4>${esc(name || 'Unknown')}</h4>
+      <p>${title ? `<span class="badge">${esc(title)}</span>` : ''}${esc(fmtStamp(n.createdAt))}${esc(edited)}</p>
+      <p class="ntext">${esc(n.text)}</p></div>
+      <div class="acts"><button type="button" data-note="${esc(n.id)}" aria-label="Edit note">${ic.edit}</button></div></li>`;
+  }).join('');
+  $('#v-notes').innerHTML = `<div class="org-head"><p class="hint" style="margin:0">Notes and reminders for the division. Everyone can read them. Only Penolong Kanan Pendaftar and Penolong Pendaftar can write them.</p>
+    <button class="btn btn-primary" id="addNote" type="button">${ic.plus}Add note</button></div>
+    ${state.notesOk ? '' : '<div class="banner">Shared notes need the latest Google Sheets script. Update the script, then reload this page.</div>'}
+    ${items ? `<ul class="list">${items}</ul>` : '<p class="empty">No notes yet. Select Add note to post the first one.</p>'}`;
+}
+
+async function saveNote(n) {
+  const i = state.notes.findIndex(x => x.id === n.id), prev = i >= 0 ? state.notes[i] : null;
+  if (prev) state.notes[i] = n; else state.notes.push(n);
+  persistLocal(); renderAll();
+  if (remoteOn) {
+    try { await remote('upsertNote', { note: n }); }
+    catch (e) {
+      if (prev) state.notes = state.notes.map(x => x.id === n.id ? prev : x); else state.notes = state.notes.filter(x => x.id !== n.id);
+      persistLocal(); renderAll();
+      toast('The note was not saved. Update the Google Sheets script to the latest version, then try again.');
+      return false;
+    }
+  }
+  return true;
+}
+async function removeNote(id) {
+  const old = state.notes.find(x => x.id === id);
+  state.notes = state.notes.filter(x => x.id !== id); persistLocal(); renderAll();
+  if (remoteOn) {
+    try { await remote('deleteNote', { id }); }
+    catch (e) { if (old) state.notes.push(old); persistLocal(); renderAll(); toast('Could not delete the note. Update the Google Sheets script and try again.'); }
+  }
+}
+
+function openNote(id) {
+  const n = id ? state.notes.find(x => x.id === id) : null, w = noteWriters();
+  if (!w.length) { toast('Add a Penolong Kanan Pendaftar or Penolong Pendaftar in the Organization tab first.'); return; }
+  noteEditId = n ? n.id : null;
+  $('#noteT').textContent = n ? 'Edit note' : 'Add note';
+  const opt = p => `<option value="${esc(p.id)}">${esc(p.name)}</option>`;
+  const grp = NOTE_TITLES.map(t => { const g = w.filter(p => p.title.trim().toLowerCase() === t); return g.length ? `<optgroup label="${esc(g[0].title.trim())}">${g.map(opt).join('')}</optgroup>` : ''; }).join('');
+  $('#ntAuthor').innerHTML = '<option value="" disabled selected>Select your name</option>' + grp;
+  $('#ntAuthor').value = n && w.some(p => p.id === n.authorId) ? n.authorId : '';
+  $('#ntText').value = n ? n.text : '';
+  $('#ntErr').textContent = ''; $('#ntDel').hidden = !n; $('#ntDel').classList.remove('armed'); $('#ntDel').textContent = 'Delete';
+  noteDlg.showModal();
+}
+$('#ntCancel').addEventListener('click', () => noteDlg.close());
+$('#noteForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const a = noteWriters().find(p => p.id === $('#ntAuthor').value), text = $('#ntText').value.trim();
+  if (!a) { $('#ntErr').textContent = 'Select your name. Only Penolong Kanan Pendaftar and Penolong Pendaftar can write notes.'; return; }
+  if (!text) { $('#ntErr').textContent = 'Write the note before saving.'; return; }
+  const old = noteEditId ? state.notes.find(x => x.id === noteEditId) : null, stamp = new Date().toISOString();
+  const n = { id: old ? old.id : uid(), authorId: a.id, authorName: a.name, authorTitle: a.title, text, createdAt: old ? old.createdAt : stamp, updatedAt: stamp };
+  noteDlg.close();
+  if (await saveNote(n)) toast(old ? 'Note updated.' : 'Note added.');
+});
+let ntDelT;
+$('#ntDel').addEventListener('click', async () => {
+  const b = $('#ntDel');
+  if (!b.classList.contains('armed')) { b.classList.add('armed'); b.textContent = 'Tap again to delete'; clearTimeout(ntDelT); ntDelT = setTimeout(() => { b.classList.remove('armed'); b.textContent = 'Delete'; }, 4000); return; }
+  const id = noteEditId; noteDlg.close(); await removeNote(id); toast('Note deleted.');
+});
+$('#v-notes').addEventListener('click', e => {
+  if (e.target.closest('#addNote')) return openNote();
+  const b = e.target.closest('[data-note]'); if (b) openNote(b.dataset.note);
+});
+
 /* ---------- Drag and drop in the tree ---------- */
 let dragId = null;
 const tree = $('#tree');
@@ -775,7 +881,7 @@ $('#clearSample').addEventListener('click', async () => {
   state.events = state.events.filter(e => !e.sample); persistLocal(); renderAll(); toast('Sample entries cleared.');
   if (remoteOn) ids.forEach(id => remote('deleteEvent', { id }).catch(() => {}));
 });
-[entryDlg, nodeDlg].forEach(d => d.addEventListener('click', e => { if (e.target === d) d.close(); }));
+[entryDlg, nodeDlg, noteDlg].forEach(d => d.addEventListener('click', e => { if (e.target === d) d.close(); }));
 
 const side = $('#side'), scrim = $('#scrim'), menuBtn = $('#menuBtn');
 function openMenu() { side.classList.add('open'); scrim.classList.add('show'); menuBtn.setAttribute('aria-expanded', 'true'); }
@@ -795,7 +901,7 @@ async function enter() {
   try { await loadData(true); } catch (e) { toast('Could not load data from Google Sheets.'); setSync(false, 'Offline: could not reach Google Sheets'); state.org = state.org.length ? state.org : buildDefaultOrg(); }
   renderAll();
   if (remoteOn) setInterval(async () => {
-    if (document.hidden || entryDlg.open || nodeDlg.open) return;
+    if (document.hidden || entryDlg.open || nodeDlg.open || noteDlg.open) return;
     try { await loadData(); renderAll(); } catch (e) { setSync(false, 'Offline: retrying'); }
   }, CONFIG.POLL_SECONDS * 1000);
 }
