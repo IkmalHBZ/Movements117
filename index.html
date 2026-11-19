@@ -145,6 +145,24 @@ main{min-width:0;flex:1}
 .badge{display:inline-block;background:var(--tc);color:#fff;border-radius:6px;padding:1px 8px;font-size:12px;font-weight:700;margin-right:6px}
 .empty{padding:36px 12px;text-align:center;color:var(--muted)}
 .item p.ntext{color:var(--ink);white-space:pre-wrap;margin-top:8px}
+.sbar{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin-bottom:14px}
+.sbar .field{margin:0;min-width:150px}
+.sbar .grow{flex:1}
+.chk{display:flex;gap:8px;align-items:center;min-height:44px;font-weight:600;font-size:14px}
+.chk input{width:18px;height:18px;accent-color:var(--forest)}
+.tstrip{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.tstrip .tchip b{font-variant-numeric:tabular-nums}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:14px;background:var(--paper)}
+table.stat{border-collapse:separate;border-spacing:0;width:100%;min-width:800px;font-size:14px;font-variant-numeric:tabular-nums}
+.stat th,.stat td{padding:9px 8px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+.stat thead th{white-space:normal;vertical-align:bottom;background:var(--mint);color:var(--forest);font-size:11.5px;letter-spacing:.03em;text-transform:uppercase;border-bottom:2px solid var(--forest-mid)}
+.stat th:first-child,.stat td:first-child{padding-left:14px;text-align:left;position:sticky;left:0;background:var(--paper);z-index:1}
+.stat thead th:first-child{background:var(--mint)}
+.stat td.v{background:color-mix(in srgb,var(--tc) var(--k,0%),transparent)}
+.stat td.z{color:var(--muted)}
+.stat tfoot td{font-weight:700;background:var(--mint);border-top:2px solid var(--forest-mid);border-bottom:0}
+.stat .pos{display:block;font-weight:400;color:var(--muted);font-size:12.5px}
+.stat .tdot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--tc);margin-right:6px}
 .sect{font-size:1.05rem;margin:18px 0 10px;color:var(--forest)}
 .sect:first-child{margin-top:0}
 
@@ -274,6 +292,7 @@ dialog::backdrop{background:rgba(18,51,37,.55)}
       <button type="button" data-view="calendar"><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Calendar</button>
       <button type="button" data-view="mine"><svg class="icon" viewBox="0 0 24 24"><path d="M5 6h14M5 12h14M5 18h9"/></svg>My entries</button>
       <button type="button" data-view="notes"><svg class="icon" viewBox="0 0 24 24"><path d="M5 4h14v11l-5 5H5z"/><path d="M14 20v-5h5M8 9h8M8 13h4"/></svg>Notes</button>
+      <button type="button" data-view="stats"><svg class="icon" viewBox="0 0 24 24"><path d="M5 20V10M12 20V4M19 20v-7"/></svg>Statistics</button>
       <button type="button" data-view="org"><svg class="icon" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="5" rx="1.5"/><rect x="3" y="16" width="6" height="5" rx="1.5"/><rect x="15" y="16" width="6" height="5" rx="1.5"/><path d="M12 8v4M6 16v-4h12v4"/></svg>Organization</button>
     </nav>
     <section class="away" aria-labelledby="awayT">
@@ -323,6 +342,8 @@ dialog::backdrop{background:rgba(18,51,37,.55)}
       <section id="v-mine" class="panel" aria-label="My entries" hidden></section>
 
       <section id="v-notes" class="panel" aria-label="Notes" hidden></section>
+
+      <section id="v-stats" class="panel" aria-label="Statistics" hidden></section>
 
       <section id="v-org" class="panel" aria-label="Organization" hidden>
         <div class="org-head">
@@ -445,7 +466,8 @@ const ic = {
   plus: '<svg class="icon" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>',
   edit: '<svg class="icon" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16v4zM13 7l4 4"/></svg>',
   trash: '<svg class="icon" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg>',
-  chev: '<svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>'
+  chev: '<svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>',
+  down: '<svg class="icon" viewBox="0 0 24 24"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg>'
 };
 
 const TYPES = [
@@ -477,7 +499,7 @@ function buildDefaultOrg() {
 /* ---------- State ---------- */
 const now = new Date();
 const state = {
-  events: [], org: [], notes: [], notesOk: true, me: store.get('m117.me', ''), key: '',
+  events: [], org: [], notes: [], notesOk: true, stats: { year: now.getFullYear(), month: 'all', basis: 'work', sort: 'org', hideZero: false }, me: store.get('m117.me', ''), key: '',
   view: 'calendar', mode: 'month', cursor: { y: now.getFullYear(), m: now.getMonth() },
   hidden: new Set(), staffFilter: '', collapsed: new Set(), editingId: null, nodeId: null, nodeParentDefault: null
 };
@@ -588,12 +610,13 @@ function renderSide() {
 }
 
 function renderView() {
-  const titles = { calendar: 'Calendar', mine: 'My entries', notes: 'Notes', org: 'Organization' };
+  const titles = { calendar: 'Calendar', mine: 'My entries', notes: 'Notes', stats: 'Statistics', org: 'Organization' };
   $('#viewTitle').textContent = titles[state.view];
-  ['calendar', 'mine', 'notes', 'org'].forEach(v => { $('#v-' + v).hidden = v !== state.view; });
+  ['calendar', 'mine', 'notes', 'stats', 'org'].forEach(v => { $('#v-' + v).hidden = v !== state.view; });
   if (state.view === 'calendar') renderCalendar();
   if (state.view === 'mine') renderMine();
   if (state.view === 'notes') renderNotes();
+  if (state.view === 'stats') renderStats();
   if (state.view === 'org') renderOrg();
 }
 
@@ -837,6 +860,227 @@ $('#v-notes').addEventListener('click', e => {
   if (e.target.closest('#addNote')) return openNote();
   const b = e.target.closest('[data-note]'); if (b) openNote(b.dataset.note);
 });
+
+/* ---------- Statistics and PDF ---------- */
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+const TYPE_HEX = { 'Off-day': '#2F6B4F', 'Medical Leave': '#A62B52', 'Time-Off': '#C2571A', 'Outstation': '#2B6A8A', 'Meeting': '#7A4E8C', 'Others': '#6B6A5C' };
+const measureCtx = document.createElement('canvas').getContext('2d');
+function tw(s, size, bold) { measureCtx.font = (bold ? 'bold ' : '') + size + 'px Helvetica, Arial, "Liberation Sans", sans-serif'; return measureCtx.measureText(String(s)).width; }
+
+function countDays(es, ee, a, b, work) {
+  const s = es > a ? es : a, t = ee < b ? ee : b;
+  if (s > t) return 0;
+  const n = diffDays(s, t) + 1;
+  if (!work) return n;
+  let c = 0; const d = fromISO(s);
+  for (let i = 0; i < n; i++) { const w = d.getDay(); if (w > 0 && w < 6) c++; d.setDate(d.getDate() + 1); }
+  return c;
+}
+function statsModel() {
+  const s = state.stats, y = +s.year, whole = s.month === 'all', mo = +s.month, work = s.basis === 'work';
+  const a = whole ? `${y}-01-01` : toISO(new Date(y, mo, 1)), b = whole ? `${y}-12-31` : toISO(new Date(y, mo + 1, 0));
+  const keys = TYPES.map(t => t.key);
+  let rows = people().map(p => {
+    const c = {}; keys.forEach(k => { c[k] = 0; });
+    state.events.forEach(e => { if (e.staffId !== p.id) return; const d = countDays(e.start, e.end, a, b, work); if (d) c[keys.includes(e.type) ? e.type : 'Others'] += d; });
+    return { p, c, total: keys.reduce((t, k) => t + c[k], 0) };
+  });
+  if (s.hideZero) rows = rows.filter(r => r.total > 0);
+  if (s.sort === 'name') rows.sort((x, z) => x.p.name.localeCompare(z.p.name));
+  else if (s.sort === 'total') rows.sort((x, z) => z.total - x.total || x.p.name.localeCompare(z.p.name));
+  const totals = {}; keys.forEach(k => { totals[k] = rows.reduce((t, r) => t + r.c[k], 0); });
+  return { a, b, work, keys, rows, totals, grand: keys.reduce((t, k) => t + totals[k], 0), year: y, month: whole ? null : mo, label: whole ? `Year ${y}` : `${MONTHS[mo]} ${y}` };
+}
+function statsYears() {
+  const ys = new Set([now.getFullYear(), +state.stats.year]);
+  state.events.forEach(e => { ys.add(+e.start.slice(0, 4)); ys.add(+e.end.slice(0, 4)); });
+  return [...ys].filter(n => n > 1990 && n < 2100).sort((a, b) => b - a);
+}
+function renderStats() {
+  const root = $('#v-stats');
+  if (!$('#statsOut', root)) {
+    const s = state.stats;
+    root.innerHTML = `<div class="sbar">
+      <div class="field"><label for="stYear">Year</label><select class="input" id="stYear">${statsYears().map(y => `<option>${y}</option>`).join('')}</select></div>
+      <div class="field"><label for="stMonth">Month</label><select class="input" id="stMonth"><option value="all">Whole year</option>${MONTHS.map((n, i) => `<option value="${i}">${n}</option>`).join('')}</select></div>
+      <div class="field"><label for="stBasis">Days counted</label><select class="input" id="stBasis"><option value="work">Working days (Mon to Fri)</option><option value="all">All calendar days</option></select></div>
+      <div class="field"><label for="stSort">Order</label><select class="input" id="stSort"><option value="org">Organization order</option><option value="name">Name (A to Z)</option><option value="total">Most days first</option></select></div>
+      <label class="chk"><input type="checkbox" id="stHide"> Hide staff with no entries</label>
+      <span class="grow"></span>
+      <button class="btn btn-primary" id="pdfBtn" type="button">${ic.down}Download PDF</button>
+    </div><div id="statsOut"></div>`;
+    $('#stYear').value = String(s.year); $('#stMonth').value = String(s.month); $('#stBasis').value = s.basis; $('#stSort').value = s.sort; $('#stHide').checked = s.hideZero;
+  }
+  renderStatsOut();
+}
+function renderStatsOut() {
+  const m = statsModel(), max = {};
+  m.keys.forEach(k => { max[k] = Math.max(1, ...m.rows.map(r => r.c[k])); });
+  const strip = m.keys.map(k => `<span class="tchip" style="--tc:${typeColor(k)}"><i></i>${esc(k)} <b>${m.totals[k]}</b></span>`).join('');
+  const head = `<tr><th scope="col">Name</th>${m.keys.map(k => `<th scope="col"><span class="tdot" style="--tc:${typeColor(k)}"></span>${esc(k)}</th>`).join('')}<th scope="col">Total days</th></tr>`;
+  const body = m.rows.map(r => `<tr><td>${esc(r.p.name)}<span class="pos">${esc(r.p.title)}</span></td>${m.keys.map(k => { const v = r.c[k]; return v ? `<td class="v" style="--tc:${typeColor(k)};--k:${Math.round(10 + 30 * v / max[k])}%"><strong>${v}</strong></td>` : '<td class="z">-</td>'; }).join('')}<td><strong>${r.total}</strong></td></tr>`).join('');
+  const foot = `<tr><td>Total</td>${m.keys.map(k => `<td>${m.totals[k]}</td>`).join('')}<td>${m.grand}</td></tr>`;
+  $('#statsOut').innerHTML = `<p class="hint"><strong>${esc(m.label)}</strong> · ${m.rows.length} staff · ${m.grand} days in total. ${m.work ? 'Weekends are not counted and public holidays are not excluded.' : 'Weekends are counted.'} Time-Off and Meeting count the days that have such an entry, not the hours.</p>
+    <div class="tstrip" aria-label="Totals by type">${strip}</div>
+    ${m.rows.length ? `<div class="tablewrap"><table class="stat"><thead>${head}</thead><tbody>${body}</tbody><tfoot>${foot}</tfoot></table></div>` : '<p class="empty">No staff to show for this period.</p>'}`;
+}
+$('#v-stats').addEventListener('change', e => {
+  const t = e.target, s = state.stats;
+  if (t.id === 'stYear') s.year = +t.value;
+  else if (t.id === 'stMonth') s.month = t.value;
+  else if (t.id === 'stBasis') s.basis = t.value;
+  else if (t.id === 'stSort') s.sort = t.value;
+  else if (t.id === 'stHide') s.hideZero = t.checked;
+  else return;
+  renderStatsOut();
+});
+$('#v-stats').addEventListener('click', e => { if (e.target.closest('#pdfBtn')) exportStatsPdf(); });
+
+function exportStatsPdf() {
+  const m = statsModel();
+  if (!m.rows.length) { toast('Nothing to download for this period.'); return; }
+  try {
+    const bytes = makeStatsPdf(m);
+    const url = URL.createObjectURL(new Blob([bytes], { type: 'application/pdf' }));
+    const a = document.createElement('a');
+    a.href = url; a.download = `117-Movements-Statistics-${m.year}${m.month === null ? '' : '-' + pad(m.month + 1)}.pdf`;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+    toast('PDF ready. Check your downloads.');
+  } catch (err) { toast('Could not create the PDF. Try again.'); }
+}
+
+/* Minimal PDF writer: Helvetica text, rectangles and lines. No outside libraries, so it works offline. */
+function pdfText(s) {
+  const map = { 0x2013: 0x96, 0x2014: 0x97, 0x2018: 0x91, 0x2019: 0x92, 0x201C: 0x93, 0x201D: 0x94, 0x2026: 0x85, 0x2022: 0x95 };
+  let o = '';
+  for (const ch of String(s)) {
+    let k = ch.charCodeAt(0);
+    if (map[k]) k = map[k]; else if (k > 255) k = 63;
+    if (k === 40 || k === 41 || k === 92) o += '\\' + String.fromCharCode(k);
+    else if (k < 32) o += ' ';
+    else o += String.fromCharCode(k);
+  }
+  return o;
+}
+function buildPdf(pages, W, H, title) {
+  let pdf = '%PDF-1.4\n'; const offs = [];
+  const add = (num, body) => { offs[num] = pdf.length; pdf += `${num} 0 obj\n${body}\nendobj\n`; };
+  const n = pages.length, info = 5 + 2 * n;
+  add(1, '<< /Type /Catalog /Pages 2 0 R >>');
+  add(2, `<< /Type /Pages /Count ${n} /Kids [${pages.map((_, i) => `${5 + 2 * i} 0 R`).join(' ')}] >>`);
+  add(3, '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>');
+  add(4, '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>');
+  pages.forEach((pc, i) => {
+    add(5 + 2 * i, `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${W} ${H}] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents ${6 + 2 * i} 0 R >>`);
+    add(6 + 2 * i, `<< /Length ${pc.length} >>\nstream\n${pc}endstream`);
+  });
+  add(info, `<< /Title (${pdfText(title)}) /Producer (117 Movements) >>`);
+  const xref = pdf.length, total = info + 1;
+  pdf += `xref\n0 ${total}\n0000000000 65535 f \n`;
+  for (let i = 1; i < total; i++) pdf += String(offs[i]).padStart(10, '0') + ' 00000 n \n';
+  pdf += `trailer\n<< /Size ${total} /Root 1 0 R /Info ${info} 0 R >>\nstartxref\n${xref}\n%%EOF`;
+  const bytes = new Uint8Array(pdf.length);
+  for (let i = 0; i < pdf.length; i++) bytes[i] = pdf.charCodeAt(i) & 255;
+  return bytes;
+}
+function makeStatsPdf(m) {
+  const W = 842, H = 595, M = 36, ROW = 18, HEAD = 30, BOTTOM = H - 46;
+  const C = { forest: '#1E4D3B', mint: '#E1ECE3', zebra: '#F7F3E8', ink: '#1B2822', muted: '#566159', line: '#D8D0BC', orange: '#C2571A', white: '#FFFFFF', pale: '#CFE0D3', sage: '#B9D1BF' };
+  const rgb = hx => { const v = parseInt(hx.slice(1), 16); return [(v >> 16) & 255, (v >> 8) & 255, v & 255].map(x => (x / 255).toFixed(3)).join(' '); };
+  const n2 = v => String(Math.round(v * 100) / 100);
+  let c = '';
+  const rect = (x, top, w, h, col) => { c += `${rgb(col)} rg ${n2(x)} ${n2(H - top - h)} ${n2(w)} ${n2(h)} re f\n`; };
+  const hline = (x1, x2, top, col, wd) => { c += `${rgb(col)} RG ${wd} w ${n2(x1)} ${n2(H - top)} m ${n2(x2)} ${n2(H - top)} l S\n`; };
+  const txt = (s, x, base, size, o) => {
+    o = o || {}; s = String(s);
+    const w = tw(s, size, o.bold);
+    if (o.align === 'r') x -= w; else if (o.align === 'c') x -= w / 2;
+    c += `${rgb(o.color || C.ink)} rg BT /${o.bold ? 'F2' : 'F1'} ${size} Tf ${n2(x)} ${n2(H - base)} Td (${pdfText(s)}) Tj ET\n`;
+    return w;
+  };
+  const fit = (s, maxW, size, bold) => { s = String(s); if (tw(s, size, bold) <= maxW) return s; while (s.length > 1 && tw(s + '...', size, bold) > maxW) s = s.slice(0, -1); return s.trimEnd() + '...'; };
+  const wrap = (s, w, size) => { const lines = []; let cur = ''; s.split(' ').forEach(wd => { const t = cur ? cur + ' ' + wd : wd; if (tw(t, size) > w && cur) { lines.push(cur); cur = wd; } else cur = t; }); if (cur) lines.push(cur); return lines; };
+
+  const typeW = 60, totW = 50, noW = 22, posW = 118;
+  const nameW = (W - 2 * M) - noW - posW - typeW * m.keys.length - totW;
+  let x = M; const colNo = x; x += noW; const colName = x; x += nameW; const colPos = x; x += posW;
+  const colType = m.keys.map(() => { const cx = x; x += typeW; return cx; }); const colTot = x;
+  const stamp = new Date().toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+  const drawHead = top => {
+    rect(M, top, W - 2 * M, HEAD, C.forest);
+    txt('No.', colNo + 6, top + 18, 8, { bold: 1, color: C.white });
+    txt('Name', colName, top + 18, 8, { bold: 1, color: C.white });
+    txt('Position', colPos, top + 18, 8, { bold: 1, color: C.white });
+    m.keys.forEach((k, i) => {
+      const right = colType[i] + typeW - 8, sp = k.indexOf(' ');
+      const parts = tw(k, 8, true) > typeW - 12 && sp > 0 ? [k.slice(0, sp), k.slice(sp + 1)] : [k];
+      parts.forEach((pt, j) => txt(pt, right, top + (parts.length === 1 ? 17 : 12 + j * 9), 8, { bold: 1, color: C.white, align: 'r' }));
+      rect(colType[i] + 4, top + HEAD - 3, typeW - 8, 3, TYPE_HEX[k] || '#6B6A5C');
+    });
+    txt('Total', colTot + totW - 8, top + 12, 8, { bold: 1, color: C.white, align: 'r' });
+    txt('days', colTot + totW - 8, top + 21, 8, { bold: 1, color: C.white, align: 'r' });
+    return top + HEAD;
+  };
+  const drawRow = (r, i, top) => {
+    if (i % 2) rect(M, top, W - 2 * M, ROW, C.zebra);
+    const base = top + 12.5;
+    txt(String(i + 1), colNo + 6, base, 8, { color: C.muted });
+    txt(fit(r.p.name, nameW - 10, 8.5), colName, base, 8.5);
+    txt(fit(r.p.title || '', posW - 8, 8), colPos, base, 8, { color: C.muted });
+    m.keys.forEach((k, j) => { const v = r.c[k], right = colType[j] + typeW - 8; if (v) txt(String(v), right, base, 8.5, { bold: 1, align: 'r' }); else txt('-', right, base, 8.5, { color: C.muted, align: 'r' }); });
+    txt(String(r.total), colTot + totW - 8, base, 8.5, { bold: 1, align: 'r' });
+    hline(M, W - M, top + ROW, C.line, 0.5);
+  };
+  const drawTotals = top => {
+    rect(M, top, W - 2 * M, ROW + 2, C.mint); hline(M, W - M, top, C.forest, 1);
+    const base = top + 13.5;
+    txt('Total', colName, base, 8.5, { bold: 1 });
+    m.keys.forEach((k, j) => txt(String(m.totals[k]), colType[j] + typeW - 8, base, 8.5, { bold: 1, align: 'r' }));
+    txt(String(m.grand), colTot + totW - 8, base, 8.5, { bold: 1, align: 'r' });
+  };
+  const firstPage = () => {
+    rect(0, 0, W, 64, C.forest); rect(0, 64, W, 3, C.orange);
+    txt('117 Movements', M, 36, 20, { bold: 1, color: C.white });
+    txt('REGISTRY DIVISION', M, 52, 8, { color: C.sage });
+    txt('Staff Movement Statistics', W - M, 34, 14, { bold: 1, color: C.white, align: 'r' });
+    txt(m.label, W - M, 52, 9, { color: C.pale, align: 'r' });
+    let ix = M;
+    [['Period', m.label], ['Days counted', m.work ? 'Working days (Mon to Fri)' : 'All calendar days'], ['Staff listed', String(m.rows.length)], ['Total days', String(m.grand)]].forEach(kv => {
+      const w1 = txt(kv[0] + ': ', ix, 90, 9.5, { bold: 1, color: C.muted }), w2 = txt(kv[1], ix + w1, 90, 9.5);
+      ix += w1 + w2 + 26;
+    });
+    const note = `Time-Off and Meeting count the days that have such an entry, not the hours. ${m.work ? 'Weekends are not counted and public holidays are not excluded.' : 'Weekends are counted.'} Generated on ${stamp}.`;
+    const lines = wrap(note, W - 2 * M, 8);
+    lines.forEach((ln, i) => txt(ln, M, 106 + i * 10, 8, { color: C.muted }));
+    return 106 + lines.length * 10 + 8;
+  };
+  const contPage = () => {
+    rect(0, 0, W, 26, C.forest);
+    txt('117 Movements', M, 17, 10, { bold: 1, color: C.white });
+    txt('Staff Movement Statistics, ' + m.label + ' (continued)', W - M, 17, 9, { color: C.pale, align: 'r' });
+    return 40;
+  };
+
+  const pages = [];
+  let top = drawHead(firstPage());
+  m.rows.forEach((r, i) => {
+    if (top + ROW > BOTTOM) { pages.push(c); c = ''; top = drawHead(contPage()); }
+    drawRow(r, i, top); top += ROW;
+  });
+  if (top + ROW + 2 > BOTTOM) { pages.push(c); c = ''; top = drawHead(contPage()); }
+  drawTotals(top);
+  pages.push(c);
+  const done = pages.map((pc, i) => {
+    c = pc;
+    hline(M, W - M, H - 34, C.line, 0.5);
+    txt(`© ${new Date().getFullYear()} 117 Movements, Registry Division. All rights reserved.`, M, H - 20, 7.5, { color: C.muted });
+    txt(`Page ${i + 1} of ${pages.length}`, W - M, H - 20, 7.5, { color: C.muted, align: 'r' });
+    return c;
+  });
+  return buildPdf(done, W, H, `117 Movements Staff Movement Statistics ${m.label}`);
+}
 
 /* ---------- Drag and drop in the tree ---------- */
 let dragId = null;
